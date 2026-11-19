@@ -22,7 +22,15 @@ sync, no account and no AI.
 
 Needs a Mac with Apple silicon and macOS 26 or later.
 
-Build it from the source: see [Build](#build).
+With [Homebrew](https://brew.sh):
+
+```sh
+brew install --cask knorthfield/tap/archivist
+```
+
+Or download `Archivist.zip` from the
+[latest release](https://github.com/knorthfield/archivist/releases/latest), unzip it, and move
+`Archivist.app` to Applications.
 
 ## Use
 
