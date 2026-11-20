@@ -47,6 +47,8 @@ final class HistoryPanel: NSObject, NSWindowDelegate {
         model.showQuickLook = { [weak self] urls in self?.quickLook.show(urls) }
     }
 
+    var isVisible: Bool { panel.isVisible }
+
     func toggle() {
         if panel.isVisible && !isHiding { hide() } else { show() }
     }

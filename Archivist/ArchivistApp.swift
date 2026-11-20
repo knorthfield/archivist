@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private var historyPanel: HistoryPanel?
     private var retentionTimer: Timer?
+    private var updateRelauncher: UpdateRelauncher?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // The unit tests run inside the app: do not add a login item, a menu bar icon or a hot key,
@@ -38,6 +39,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         monitor.start()
         HotKey.register { historyPanel.toggle() }
+
+        let updateRelauncher = UpdateRelauncher(isBusy: { historyPanel.isVisible })
+        updateRelauncher.start()
+        self.updateRelauncher = updateRelauncher
     }
 }
 
