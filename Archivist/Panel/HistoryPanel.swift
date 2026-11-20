@@ -7,10 +7,15 @@ import SwiftUI
 @MainActor
 final class HistoryPanel: NSObject, NSWindowDelegate {
     private static let height: CGFloat = 330
+    /// The gap between the panel and the edges of the screen.
+    private static let margin: CGFloat = 12
+    private static let slideDistance = height + margin
+    private static let animationDuration = 0.18
 
     private let panel: KeyPanel
     private let model: HistoryModel
     private let quickLook = QuickLook()
+    private var isHiding = false
 
     init(model: HistoryModel) {
         self.model = model
@@ -43,28 +48,53 @@ final class HistoryPanel: NSObject, NSWindowDelegate {
     }
 
     func toggle() {
-        if panel.isVisible { hide() } else { show() }
+        if panel.isVisible && !isHiding { hide() } else { show() }
     }
 
     func show() {
         let mouse = NSEvent.mouseLocation
         guard let screen = NSScreen.screens.first(where: { NSMouseInRect(mouse, $0.frame, false) }) ?? NSScreen.main
         else { return }
+        isHiding = false
         model.prepareToShow()
-        let shown = NSRect(x: screen.frame.minX, y: screen.frame.minY, width: screen.frame.width, height: Self.height)
-        panel.setFrame(shown.offsetBy(dx: 0, dy: -Self.height), display: false)
+        let shown = NSRect(
+            x: screen.frame.minX + Self.margin,
+            y: screen.frame.minY + Self.margin,
+            width: screen.frame.width - 2 * Self.margin,
+            height: Self.height
+        )
+        panel.setFrame(shown.offsetBy(dx: 0, dy: -Self.slideDistance), display: false)
+        panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.18
+            context.duration = Self.animationDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().setFrame(shown, display: true)
+            panel.animator().alphaValue = 1
         }
     }
 
     func hide() {
-        guard panel.isVisible else { return }
+        guard panel.isVisible, !isHiding else { return }
+        isHiding = true
         quickLook.close()
+        // The panel stays on the screen while it slides out, but it must give the keyboard back
+        // immediately: the ⌘V of a paste comes before the end of the animation.
         panel.orderOut(nil)
+        panel.orderFrontRegardless()
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = Self.animationDuration
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            panel.animator().setFrame(panel.frame.offsetBy(dx: 0, dy: -Self.slideDistance), display: true)
+            panel.animator().alphaValue = 0
+        } completionHandler: {
+            MainActor.assumeIsolated {
+                // A `show()` during the animation cancels the hide.
+                guard self.isHiding else { return }
+                self.isHiding = false
+                self.panel.orderOut(nil)
+            }
+        }
     }
 
     /// A click in a different window closes the panel.

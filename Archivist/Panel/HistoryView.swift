@@ -13,7 +13,7 @@ struct HistoryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.regularMaterial)
-        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 14, topTrailingRadius: 14))
+        .clipShape(.rect(cornerRadius: 24))
         .overlay {
             if let editor = model.editor {
                 ItemEditor(model: model, editor: editor)
