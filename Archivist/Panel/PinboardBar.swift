@@ -35,8 +35,8 @@ struct PinboardBar: View {
         }
         .labelStyle(.iconOnly)
         .buttonStyle(.borderless)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding([.horizontal, .top], 16)
+        .padding(.bottom, 10)
     }
 
     /// Not a text field: the panel adds the keys that the user types to the search.
