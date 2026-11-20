@@ -70,6 +70,11 @@ final class HistoryPanel: NSObject, NSWindowDelegate {
             context.duration = Self.animationDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().setFrame(shown, display: true)
+        }
+        // The fade is shorter than the slide. With an equal time, most of the movement occurs
+        // while the panel is almost transparent, and the slide is not visible.
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = Self.animationDuration / 3
             panel.animator().alphaValue = 1
         }
     }
