@@ -7,8 +7,8 @@ final class SettingsWindow {
 
     init(model: HistoryModel) {
         window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 560),
-            styleMask: [.titled, .closable],
+            contentRect: NSRect(x: 0, y: 0, width: 660, height: 440),
+            styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: true
         )
